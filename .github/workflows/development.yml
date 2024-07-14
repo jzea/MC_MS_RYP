@@ -1,0 +1,30 @@
+name: Build & Deploy Development
+
+on:
+  push:
+    branches:
+      - development
+      
+jobs:
+  deploy_to_droplet:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    name: Deploy to Droplet
+    steps:
+      - name: Connect with SSH and Deploy
+        uses: appleboy/ssh-action@v1.0.0
+        with:
+          host: ${{ secrets.SSH_HOST_DEV }}
+          username: ${{ secrets.SSH_USERNAME_DEV }}
+          key: ${{ secrets.SSH_KEY_DEV }}
+          port: ${{ secrets.SSH_PORT }}
+          script: |
+            cd "${{secrets.DEVELOPMENT_FOLDER}}"
+            git pull origin development
+            echo "${{ secrets.DOT_ENV_DEVELOPMENT }}" > .env
+            docker system prune --force
+            docker-compose stop microservicio_ryp_api
+            docker rm -f microservicio_ryp
+            docker-compose build microservicio_ryp_api
+            docker-compose up -d microservicio_ryp_api
+            exit

@@ -1,0 +1,19 @@
+version: "3.8"
+services:
+  microservicio_ryp_api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: microservicio_ryp
+    restart: on-failure
+    ports:
+      - "5004:5004"
+    networks:
+      - mc_network
+
+    env_file:
+      - .env
+
+networks:
+  mc_network:
+    driver: bridge
